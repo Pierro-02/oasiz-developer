@@ -1,0 +1,18 @@
+# Codex MCP server configuration for {{GAME_TITLE}}.
+# Copy this to .codex/config.local.toml and fill in your credentials.
+# config.local.toml should be gitignored.
+
+# [mcp_servers.outline]
+# command = "cmd"
+# args = ["/c", "npx", "-y", "--package=outline-mcp-server@latest", "-c", "outline-mcp-server-stdio"]
+# [mcp_servers.outline.env]
+# OUTLINE_API_KEY = "ol_api_..."
+# OUTLINE_API_URL = "https://your-outline-instance/api"
+
+# [mcp_servers.plane]
+# command = "cmd"
+# args = ["/c", "npx", "-y", "@makeplane/plane-mcp-server"]
+# [mcp_servers.plane.env]
+# PLANE_API_HOST_URL = "https://your-plane-instance"
+# PLANE_API_KEY = "plane_api_..."
+# PLANE_WORKSPACE_SLUG = "your-workspace"

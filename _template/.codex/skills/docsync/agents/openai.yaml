@@ -1,0 +1,17 @@
+name: docsync
+description: Synchronises .ops/docs-system/** with current codebase state after structural changes.
+model: o4-mini
+instructions_file: ../SKILL.md
+tools:
+  - type: function
+    function:
+      name: read_file
+      description: Read a file from the repository
+  - type: function
+    function:
+      name: write_file
+      description: Write or update a file in the repository
+  - type: function
+    function:
+      name: list_files
+      description: List files in a directory

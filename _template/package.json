@@ -1,0 +1,33 @@
+{
+  "name": "{{GAME_NAME}}",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "tsc -b && vite build",
+    "typecheck": "tsc -b",
+    "preview": "vite preview",
+    "format": "prettier --write src"
+  },
+  "dependencies": {
+    "@oasiz/sdk": "^1.6.2",
+    "howler": "^2.2.4",
+    "phaser": "^3.90.0",
+    "playroomkit": "^0.0.96",
+    "react": "^19.2.5",
+    "react-dom": "^19.2.5",
+    "three": "^0.184.0",
+    "zustand": "^5.0.0"
+  },
+  "devDependencies": {
+    "@types/howler": "^2.2.12",
+    "@types/react": "^19.2.14",
+    "@types/react-dom": "^19.2.3",
+    "@types/three": "^0.184.1",
+    "@vitejs/plugin-react": "^6.0.1",
+    "typescript": "~6.0.2",
+    "vite": "^8.0.10",
+    "vite-plugin-singlefile": "^2.3.3"
+  }
+}

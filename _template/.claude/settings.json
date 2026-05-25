@@ -1,0 +1,36 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(bun run *)",
+      "Bash(bun add *)",
+      "Bash(bun install)",
+      "Bash(bunx tsc *)",
+      "Skill(docsync)"
+    ]
+  },
+  "hooks": {
+    "SessionStart": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "repo=$(git rev-parse --show-toplevel 2>/dev/null) && cat \"$repo/{{GAME_NAME}}/CLAUDE.md\" 2>/dev/null | jq -Rs '{hookSpecificOutput:{hookEventName:\"SessionStart\",additionalContext:(\"=== CLAUDE.md - READ AND FOLLOW THESE RULES ===\\n\" + .)}}'"
+          }
+        ]
+      }
+    ],
+    "PreToolUse": [
+      {
+        "matcher": "Bash",
+        "hooks": [
+          {
+            "type": "agent",
+            "prompt": "You are a documentation quality gate for the {{GAME_NAME}} project.\n\nYour job: decide whether staged documentation changes adequately cover staged code changes before a git commit proceeds.\n\nSteps:\n1. Run `git diff --cached --name-only` to list all staged files.\n2. Check for staged files under `{{GAME_NAME}}/` excluding `.ops/docs-system/**`.\n3. If no non-doc {{GAME_NAME}} files are staged, echo `{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\"}}` and stop.\n4. Run `git diff --cached --stat -- {{GAME_NAME}}` to understand what changed.\n5. Run `git diff --cached --name-only -- {{GAME_NAME}}/.ops/docs-system` to see what docs are staged.\n6. If no doc files are staged, echo `{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"{{GAME_NAME}} changes are staged with no .ops/docs-system updates. Run docsync and include documentation updates in the same commit.\"}}` and stop.\n7. Run `git diff --cached -- {{GAME_NAME}}/.ops/docs-system` to inspect the doc diff.\n8. Evaluate quality: docs should include a CHANGELOG entry and update the relevant reference, explanation, or how-to docs for the changed system.\n9. If docs are adequate, echo `{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"allow\"}}`.\n10. If docs are inadequate, echo `{\"hookSpecificOutput\":{\"hookEventName\":\"PreToolUse\",\"permissionDecision\":\"deny\",\"permissionDecisionReason\":\"<specific missing or stale documentation>\"}}`.\n\nEcho ONLY the final JSON object as your last action.",
+            "if": "Bash(git commit *)",
+            "timeout": 60
+          }
+        ]
+      }
+    ]
+  }
+}
