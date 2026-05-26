@@ -1,5 +1,12 @@
 #!/usr/bin/env bun
-import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync, statSync } from "fs";
+import {
+  existsSync,
+  mkdirSync,
+  readdirSync,
+  readFileSync,
+  writeFileSync,
+  statSync,
+} from "fs";
 import { join } from "path";
 import * as readline from "readline/promises";
 
@@ -11,25 +18,49 @@ async function ask(rl: readline.Interface, q: string): Promise<string> {
   return (await rl.question(q)).trim();
 }
 
-async function confirm(rl: readline.Interface, q: string, def = false): Promise<boolean> {
+async function confirm(
+  rl: readline.Interface,
+  q: string,
+  def = false,
+): Promise<boolean> {
   const hint = def ? "[Y/n]" : "[y/N]";
   const a = (await rl.question(`  ${q} ${hint}: `)).trim().toLowerCase();
   return a ? a.startsWith("y") : def;
 }
 
 function toTitle(kebab: string): string {
-  return kebab.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join(" ");
+  return kebab
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join(" ");
 }
 
 function toPascal(kebab: string): string {
-  return kebab.split("-").map(w => w.charAt(0).toUpperCase() + w.slice(1)).join("");
+  return kebab
+    .split("-")
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1))
+    .join("");
 }
 
 const BINARY_EXTS = new Set([
-  ".png", ".jpg", ".jpeg", ".gif", ".webp", ".avif", ".ico",
-  ".woff", ".woff2", ".ttf", ".otf",
-  ".mp3", ".ogg", ".wav", ".flac", ".aac",
-  ".mp4", ".webm",
+  ".png",
+  ".jpg",
+  ".jpeg",
+  ".gif",
+  ".webp",
+  ".avif",
+  ".ico",
+  ".woff",
+  ".woff2",
+  ".ttf",
+  ".otf",
+  ".mp3",
+  ".ogg",
+  ".wav",
+  ".flac",
+  ".aac",
+  ".mp4",
+  ".webm",
 ]);
 
 function isBinary(filename: string): boolean {
@@ -39,11 +70,16 @@ function isBinary(filename: string): boolean {
 
 function processFile(content: string, vars: Record<string, string>): string {
   let out = content;
-  for (const [k, v] of Object.entries(vars)) out = out.replaceAll(`{{${k}}}`, v);
+  for (const [k, v] of Object.entries(vars))
+    out = out.replaceAll(`{{${k}}}`, v);
   return out;
 }
 
-function copyDir(src: string, dest: string, vars: Record<string, string>): void {
+function copyDir(
+  src: string,
+  dest: string,
+  vars: Record<string, string>,
+): void {
   mkdirSync(dest, { recursive: true });
   for (const entry of readdirSync(src)) {
     if (entry === "_optional") continue;
@@ -59,13 +95,20 @@ function copyDir(src: string, dest: string, vars: Record<string, string>): void 
   }
 }
 
-function copyOptional(module: string, gameDir: string, vars: Record<string, string>): void {
+function copyOptional(
+  module: string,
+  gameDir: string,
+  vars: Record<string, string>,
+): void {
   const src = join(OPTIONAL_DIR, module);
   if (existsSync(src)) copyDir(src, gameDir, vars);
 }
 
 async function main(): Promise<void> {
-  const rl = readline.createInterface({ input: process.stdin, output: process.stdout });
+  const rl = readline.createInterface({
+    input: process.stdin,
+    output: process.stdout,
+  });
 
   console.log("\n╔═══════════════════════════════╗");
   console.log("║     Oasiz Game Creator v1     ║");
@@ -73,11 +116,18 @@ async function main(): Promise<void> {
 
   let gameName = "";
   while (!gameName) {
-    const input = await ask(rl, "  Game folder name (kebab-case, e.g. laser-tennis): ");
-    if (/^[a-z][a-z0-9-]*$/.test(input)) {
-      gameName = input;
+    const input = await ask(
+      rl,
+      "  Game name (e.g. laser-tennis, LaserTennis, Laser Tennis): ",
+    );
+    // Spaces → hyphens, then validate: letters, digits, hyphens only, must start with a letter
+    const normalized = input.replace(/\s+/g, "-");
+    if (/^[a-zA-Z][a-zA-Z0-9-]*$/.test(normalized)) {
+      gameName = normalized;
     } else {
-      console.log("  Use lowercase letters, numbers, hyphens. Must start with a letter.\n");
+      console.log(
+        "  Must start with a letter. Only letters, digits, and hyphens allowed.\n",
+      );
     }
   }
 
@@ -88,17 +138,19 @@ async function main(): Promise<void> {
     process.exit(1);
   }
 
-  console.log("\n  Base: React 19 + PlayroomKit + Oasiz SDK + Howler (always included)\n");
+  console.log(
+    "\n  Base: React 19 + PlayroomKit + Oasiz SDK + Howler (always included)\n",
+  );
 
   const useZustand = await confirm(rl, "Include Zustand for global state?");
-  const usePhaser  = await confirm(rl, "Include Phaser 3 for 2D rendering?");
-  const useThree   = await confirm(rl, "Include Three.js for 3D rendering?");
+  const usePhaser = await confirm(rl, "Include Phaser 3 for 2D rendering?");
+  const useThree = await confirm(rl, "Include Three.js for 3D rendering?");
 
   rl.close();
 
   const vars: Record<string, string> = {
-    GAME_NAME:   gameName,
-    GAME_TITLE:  toTitle(gameName),
+    GAME_NAME: gameName,
+    GAME_TITLE: toTitle(gameName),
     GAME_PASCAL: toPascal(gameName),
   };
 
@@ -106,8 +158,8 @@ async function main(): Promise<void> {
   copyDir(TEMPLATE_DIR, gameDir, vars);
 
   if (useZustand) copyOptional("zustand", gameDir, vars);
-  if (usePhaser)  copyOptional("phaser",  gameDir, vars);
-  if (useThree)   copyOptional("three",   gameDir, vars);
+  if (usePhaser) copyOptional("phaser", gameDir, vars);
+  if (useThree) copyOptional("three", gameDir, vars);
 
   // Trim package.json to only selected optional deps
   const pkgPath = join(gameDir, "package.json");
@@ -116,7 +168,7 @@ async function main(): Promise<void> {
     devDependencies: Record<string, string>;
   };
   if (!useZustand) delete pkg.dependencies["zustand"];
-  if (!usePhaser)  delete pkg.dependencies["phaser"];
+  if (!usePhaser) delete pkg.dependencies["phaser"];
   if (!useThree) {
     delete pkg.dependencies["three"];
     delete pkg.devDependencies["@types/three"];
@@ -124,7 +176,11 @@ async function main(): Promise<void> {
   writeFileSync(pkgPath, JSON.stringify(pkg, null, 2) + "\n", "utf-8");
 
   console.log("  Installing dependencies...\n");
-  const proc = Bun.spawn(["bun", "install"], { cwd: gameDir, stdout: "inherit", stderr: "inherit" });
+  const proc = Bun.spawn(["bun", "install"], {
+    cwd: gameDir,
+    stdout: "inherit",
+    stderr: "inherit",
+  });
   const code = await proc.exited;
 
   if (code !== 0) {
@@ -132,14 +188,20 @@ async function main(): Promise<void> {
     process.exit(code);
   }
 
-  const stack = ["React + PlayroomKit + Oasiz SDK",
+  const stack = [
+    "React + PlayroomKit + Oasiz SDK",
     useZustand ? "Zustand" : null,
-    usePhaser  ? "Phaser 3" : null,
-    useThree   ? "Three.js" : null,
-  ].filter(Boolean).join(", ");
+    usePhaser ? "Phaser 3" : null,
+    useThree ? "Three.js" : null,
+  ]
+    .filter(Boolean)
+    .join(", ");
 
   console.log(`\n  Done! Stack: ${stack}`);
   console.log(`\n  cd ${gameName} && bun run dev\n`);
 }
 
-main().catch((err: unknown) => { console.error(err); process.exit(1); });
+main().catch((err: unknown) => {
+  console.error(err);
+  process.exit(1);
+});

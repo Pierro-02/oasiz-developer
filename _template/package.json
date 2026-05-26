@@ -11,7 +11,7 @@
     "format": "prettier --write src"
   },
   "dependencies": {
-    "@oasiz/sdk": "^1.6.2",
+    "@oasiz/sdk": "1.6.2",
     "howler": "^2.2.4",
     "phaser": "^3.90.0",
     "playroomkit": "^0.0.96",

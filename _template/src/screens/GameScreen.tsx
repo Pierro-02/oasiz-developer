@@ -56,7 +56,7 @@ export function GameScreen({
         </div>
       )}
 
-      <div className="hud-top" style={{ paddingTop: safeAreaTop + 8 }}>
+      <div className="hud-top" style={{ paddingTop: `calc(max(${safeAreaTop}px, var(--safe-top)) + 8px)` }}>
         {/* HUD elements go here */}
       </div>
 
